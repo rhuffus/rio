@@ -1,5 +1,6 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
+use std::path::Path;
 
 pub mod apply;
 pub mod diff;
@@ -30,4 +31,21 @@ impl Cli {
             Command::Diff(args) => diff::run(args),
         }
     }
+}
+
+/// Shared helper for subcommands that accept block content via `--content` or
+/// `--from`. When both are absent the content is empty.
+pub fn resolve_content(content: Option<&str>, from: Option<&Path>) -> Result<String> {
+    if let Some(c) = content {
+        let mut s = c.to_string();
+        if !s.ends_with('\n') {
+            s.push('\n');
+        }
+        return Ok(s);
+    }
+    if let Some(p) = from {
+        return std::fs::read_to_string(p)
+            .with_context(|| format!("reading content from {}", p.display()));
+    }
+    Ok(String::new())
 }
