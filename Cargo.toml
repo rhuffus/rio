@@ -1,0 +1,21 @@
+[package]
+name = "rio"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Block-based reconciliation dotfile manager with tree-sitter parsing and per-file sidecar state."
+repository = "https://github.com/rhuffus/rio"
+homepage = "https://github.com/rhuffus/rio"
+license = "Apache-2.0"
+readme = "README.md"
+keywords = ["dotfiles", "config", "homebrew", "tree-sitter"]
+categories = ["command-line-utilities", "config", "development-tools"]
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
