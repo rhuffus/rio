@@ -1,4 +1,5 @@
 use assert_cmd::Command;
+use predicates::prelude::PredicateBooleanExt;
 use predicates::str::contains;
 use std::fs;
 use std::path::PathBuf;
@@ -135,4 +136,103 @@ fn diff_reports_no_changes_when_content_matches() {
         .assert()
         .success()
         .stdout(contains("no changes"));
+}
+
+#[test]
+fn init_with_from_flag_reads_content_file() {
+    let dir = tempdir().unwrap();
+    let source = dir.path().join("source.sh");
+    let target = dir.path().join("target.sh");
+    fs::write(&source, "alias k=kubectl\nalias d=docker\n").unwrap();
+
+    Command::cargo_bin("rio")
+        .unwrap()
+        .args(["init", target.to_str().unwrap(), "--from", source.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let body = fs::read_to_string(&target).unwrap();
+    assert!(body.contains("alias k=kubectl"));
+    assert!(body.contains("alias d=docker"));
+}
+
+#[test]
+fn apply_after_drift_restores_clean_status() {
+    let dir = tempdir().unwrap();
+    let target = dir.path().join("test.sh");
+
+    Command::cargo_bin("rio")
+        .unwrap()
+        .args(["init", target.to_str().unwrap(), "--content", "FOO=bar"])
+        .assert()
+        .success();
+
+    // Tamper.
+    let body = fs::read_to_string(&target).unwrap();
+    fs::write(&target, body.replace("FOO=bar", "FOO=tampered")).unwrap();
+
+    // Apply with the original content restores the block and rebases the hash.
+    Command::cargo_bin("rio")
+        .unwrap()
+        .args(["apply", target.to_str().unwrap(), "--content", "FOO=bar"])
+        .assert()
+        .success();
+
+    Command::cargo_bin("rio")
+        .unwrap()
+        .args(["status", target.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(contains("clean"));
+}
+
+#[test]
+fn status_reports_unmanaged_file() {
+    let dir = tempdir().unwrap();
+    let target = dir.path().join("plain.sh");
+    fs::write(&target, "echo hello\n").unwrap();
+
+    Command::cargo_bin("rio")
+        .unwrap()
+        .args(["status", target.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(contains("not managed"));
+}
+
+#[test]
+fn diff_shows_both_sides_when_content_differs() {
+    let dir = tempdir().unwrap();
+    let target = dir.path().join("test.sh");
+
+    Command::cargo_bin("rio")
+        .unwrap()
+        .args(["init", target.to_str().unwrap(), "--content", "OLD=1"])
+        .assert()
+        .success();
+
+    Command::cargo_bin("rio")
+        .unwrap()
+        .args(["diff", target.to_str().unwrap(), "--content", "NEW=2"])
+        .assert()
+        .success()
+        .stdout(contains("OLD=1").and(contains("NEW=2")));
+}
+
+#[test]
+fn init_creates_file_when_missing() {
+    let dir = tempdir().unwrap();
+    let target = dir.path().join("brand-new.sh");
+    assert!(!target.exists());
+
+    Command::cargo_bin("rio")
+        .unwrap()
+        .args(["init", target.to_str().unwrap(), "--content", "echo hi"])
+        .assert()
+        .success();
+
+    assert!(target.exists());
+    let body = fs::read_to_string(&target).unwrap();
+    assert!(body.contains("# >>> RhuffusIO Managed Block >>>"));
+    assert!(body.contains("echo hi"));
 }
