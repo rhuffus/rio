@@ -8,7 +8,11 @@ pub mod init;
 pub mod status;
 
 #[derive(Parser, Debug)]
-#[command(name = "rio", version, about = "Block-based reconciliation dotfile manager.")]
+#[command(
+    name = "rio",
+    version,
+    about = "Block-based reconciliation dotfile manager."
+)]
 pub struct Cli {
     #[command(subcommand)]
     command: Command,

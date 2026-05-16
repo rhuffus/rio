@@ -47,7 +47,11 @@ fn init_creates_block_and_sidecar() {
     assert!(body.contains("export FOO=bar"));
 
     let sidecar = PathBuf::from(format!("{}.rio", target.display()));
-    assert!(sidecar.exists(), "sidecar should exist at {}", sidecar.display());
+    assert!(
+        sidecar.exists(),
+        "sidecar should exist at {}",
+        sidecar.display()
+    );
 }
 
 #[test]
@@ -76,14 +80,24 @@ fn apply_is_idempotent_and_status_reports_clean() {
 
     Command::cargo_bin("rio")
         .unwrap()
-        .args(["apply", target.to_str().unwrap(), "--content", "alias gs='git status'"])
+        .args([
+            "apply",
+            target.to_str().unwrap(),
+            "--content",
+            "alias gs='git status'",
+        ])
         .assert()
         .success();
 
     // Second apply with same content: same hash, still clean.
     Command::cargo_bin("rio")
         .unwrap()
-        .args(["apply", target.to_str().unwrap(), "--content", "alias gs='git status'"])
+        .args([
+            "apply",
+            target.to_str().unwrap(),
+            "--content",
+            "alias gs='git status'",
+        ])
         .assert()
         .success();
 
@@ -147,7 +161,12 @@ fn init_with_from_flag_reads_content_file() {
 
     Command::cargo_bin("rio")
         .unwrap()
-        .args(["init", target.to_str().unwrap(), "--from", source.to_str().unwrap()])
+        .args([
+            "init",
+            target.to_str().unwrap(),
+            "--from",
+            source.to_str().unwrap(),
+        ])
         .assert()
         .success();
 

@@ -28,8 +28,7 @@ pub fn run(args: Args) -> Result<()> {
         String::new()
     };
     let updated = block::upsert(&existing, &content)?;
-    fs::write(&args.path, &updated)
-        .with_context(|| format!("writing {}", args.path.display()))?;
+    fs::write(&args.path, &updated).with_context(|| format!("writing {}", args.path.display()))?;
 
     let sidecar_path = sidecar::path_for(&args.path);
     let mut sc = if sidecar_path.exists() {

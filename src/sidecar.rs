@@ -42,8 +42,7 @@ impl Sidecar {
 
     pub fn save(&self, path: &Path) -> Result<()> {
         let raw = toml::to_string_pretty(self).context("serializing sidecar")?;
-        fs::write(path, raw)
-            .with_context(|| format!("writing sidecar at {}", path.display()))?;
+        fs::write(path, raw).with_context(|| format!("writing sidecar at {}", path.display()))?;
         Ok(())
     }
 }

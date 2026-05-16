@@ -39,11 +39,12 @@ pub fn run(args: Args) -> Result<()> {
         String::new()
     };
     let updated = block::upsert(&existing, &content)?;
-    fs::write(&args.path, &updated)
-        .with_context(|| format!("writing {}", args.path.display()))?;
+    fs::write(&args.path, &updated).with_context(|| format!("writing {}", args.path.display()))?;
 
-    let mut sc = sidecar::Sidecar::default();
-    sc.managed_block_hash = Some(sidecar::hash_block(&content));
+    let sc = sidecar::Sidecar {
+        managed_block_hash: Some(sidecar::hash_block(&content)),
+        ..sidecar::Sidecar::default()
+    };
     sc.save(&sidecar_path)?;
 
     println!(
