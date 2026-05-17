@@ -1,6 +1,6 @@
-//! `.rio` sidecar file format.
+//! `.rhio` sidecar file format.
 //!
-//! Each managed file at `<path>` has a sibling sidecar at `<path>.rio` that
+//! Each managed file at `<path>` has a sibling sidecar at `<path>.rhio` that
 //! persists plugin state: the hash of the current managed block, decisions the
 //! user made about non-managed stanzas (`ignored`), etc. The sidecar is TOML
 //! and intended to be versioned in git for portability across machines.
@@ -47,10 +47,10 @@ impl Sidecar {
     }
 }
 
-/// For a managed file at `<file>`, the sidecar lives at `<file>.rio`.
+/// For a managed file at `<file>`, the sidecar lives at `<file>.rhio`.
 pub fn path_for(file: &Path) -> PathBuf {
     let mut s = file.as_os_str().to_os_string();
-    s.push(".rio");
+    s.push(".rhio");
     PathBuf::from(s)
 }
 
@@ -78,13 +78,13 @@ mod tests {
     #[test]
     fn path_for_appends_rio_extension() {
         let p = path_for(Path::new("/home/u/.zshrc"));
-        assert_eq!(p, PathBuf::from("/home/u/.zshrc.rio"));
+        assert_eq!(p, PathBuf::from("/home/u/.zshrc.rhio"));
     }
 
     #[test]
     fn path_for_works_with_no_extension() {
         let p = path_for(Path::new("/etc/hosts"));
-        assert_eq!(p, PathBuf::from("/etc/hosts.rio"));
+        assert_eq!(p, PathBuf::from("/etc/hosts.rhio"));
     }
 
     #[test]
@@ -96,7 +96,7 @@ mod tests {
     #[test]
     fn save_and_load_roundtrip() {
         let dir = tempdir().unwrap();
-        let path = dir.path().join("test.rio");
+        let path = dir.path().join("test.rhio");
         let original = Sidecar {
             version: SCHEMA_VERSION,
             managed_block_hash: Some("abc123".to_string()),
@@ -110,7 +110,7 @@ mod tests {
     #[test]
     fn load_returns_error_for_invalid_toml() {
         let dir = tempdir().unwrap();
-        let path = dir.path().join("test.rio");
+        let path = dir.path().join("test.rhio");
         fs::write(&path, "not [ valid toml").unwrap();
         assert!(Sidecar::load(&path).is_err());
     }

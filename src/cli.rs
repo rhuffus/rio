@@ -9,7 +9,7 @@ pub mod status;
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "rio",
+    name = "rhio",
     version,
     about = "Block-based reconciliation dotfile manager."
 )]

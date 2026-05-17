@@ -1,6 +1,6 @@
 //! Managed block markers and operations.
 //!
-//! A rio-managed file contains a delimited block whose contents are owned by
+//! A rhio-managed file contains a delimited block whose contents are owned by
 //! the plugin. Everything outside the block belongs to the user.
 
 use anyhow::{Result, anyhow};
@@ -8,7 +8,7 @@ use anyhow::{Result, anyhow};
 pub const BLOCK_OPEN: &str = "# >>> RhuffusIO Managed Block >>>";
 pub const BLOCK_CLOSE: &str = "# <<< RhuffusIO Managed Block <<<";
 
-/// Location of the rio-managed block within a file's text.
+/// Location of the rhio-managed block within a file's text.
 #[derive(Debug, PartialEq, Eq)]
 pub struct Block {
     /// 0-indexed line of the opening marker.

@@ -34,7 +34,7 @@ pub fn run(args: Args) -> Result<()> {
         }
         (Some(b), None) => {
             println!(
-                "{}: block present (lines {}..{}) but no sidecar — run `rio init` or `rio apply`",
+                "{}: block present (lines {}..{}) but no sidecar — run `rhio init` or `rhio apply`",
                 args.path.display(),
                 b.start_line + 1,
                 b.end_line + 1
@@ -54,7 +54,7 @@ pub fn run(args: Args) -> Result<()> {
                 }
                 None => {
                     println!(
-                        "{}: block present but sidecar has no recorded hash; run `rio apply`",
+                        "{}: block present but sidecar has no recorded hash; run `rhio apply`",
                         args.path.display()
                     );
                 }

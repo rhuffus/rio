@@ -25,14 +25,14 @@ Run `cargo fmt --check` and the `clippy` command above before opening a PR — t
 ## Repository layout
 
 ```
-rio/
+rhio/
 ├── src/
 │   ├── main.rs           # CLI entry point: Cli::parse().run()
 │   ├── lib.rs            # Module re-exports
 │   ├── cli.rs            # clap derive + dispatch + resolve_content helper
 │   ├── cli/{init,status,apply,diff}.rs
 │   ├── block.rs          # Managed block markers + find / upsert / remove
-│   ├── sidecar.rs        # `.rio` TOML format + hash_block helper
+│   ├── sidecar.rs        # `.rhio` TOML format + hash_block helper
 │   ├── parser.rs
 │   ├── parser/bash.rs    # tree-sitter-bash wrapper, stanza classification
 │   └── reconcile.rs      # (stub; lands in v0.6)
@@ -80,9 +80,9 @@ git push --tags
 The workflow:
 
 1. Builds the binary in parallel for four targets: darwin-arm64, darwin-x86_64, linux-x86_64, linux-arm64.
-2. Packages each as `rio-<os>-<arch>.tar.gz` and computes a `.sha256`.
+2. Packages each as `rhio-<os>-<arch>.tar.gz` and computes a `.sha256`.
 3. Creates a GitHub Release with auto-generated notes from PRs since the previous tag.
-4. The Homebrew tap (`rhuffus/homebrew-rio`) consumes these tarballs.
+4. The Homebrew tap (`rhuffus/homebrew-rhio`) consumes these tarballs.
 
 ### Validating a release-workflow change
 

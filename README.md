@@ -1,62 +1,62 @@
-# rio
+# rhio
 
 > **R**huffus**IO** — a block-based reconciliation dotfile manager.
 
-`rio` keeps your dotfiles synchronized across machines without overwriting them. It manages a delimited block inside each config file you bring under its control, leaving the rest of the file to you.
+`rhio` keeps your dotfiles synchronized across machines without overwriting them. It manages a delimited block inside each config file you bring under its control, leaving the rest of the file to you.
 
 ## What makes it different
 
-Unlike traditional dotfile managers (chezmoi, yadm, GNU Stow), `rio`:
+Unlike traditional dotfile managers (chezmoi, yadm, GNU Stow), `rhio`:
 
-- **Co-resides with your edits.** Only the marked block is owned by `rio`. Everything else in the file stays yours.
+- **Co-resides with your edits.** Only the marked block is owned by `rhio`. Everything else in the file stays yours.
 - **Understands structure.** Uses tree-sitter to compare configurations semantically (`FOO=bar` and `export FOO=bar` are the same thing).
 - **Reconciles drift interactively** *(v0.6).* Detects manual edits outside the block and offers to promote, ignore, or remove them.
-- **Tracks decisions** in a `.rio` sidecar next to each managed file — versioned in git, portable across machines.
+- **Tracks decisions** in a `.rhio` sidecar next to each managed file — versioned in git, portable across machines.
 
 ## Status
 
-**v0.1.0 — alpha.** The MVP ships managed-block handling for shell files (`.zshrc`, `.bashrc`) with tree-sitter-bash parsing and the `.rio` sidecar format. See [docs/ROADMAP.md](docs/ROADMAP.md) for what each upcoming version adds.
+**v0.1.0 — alpha.** The MVP ships managed-block handling for shell files (`.zshrc`, `.bashrc`) with tree-sitter-bash parsing and the `.rhio` sidecar format. See [docs/ROADMAP.md](docs/ROADMAP.md) for what each upcoming version adds.
 
 ## Install
 
 ```sh
 # Via Homebrew tap (recommended, once v0.1.0 ships)
-brew tap rhuffus/rio
-brew install rio
+brew tap rhuffus/rhio
+brew install rhio
 
 # Or build from source
-git clone https://github.com/rhuffus/rio && cd rio && cargo install --path .
+git clone https://github.com/rhuffus/rhio && cd rhio && cargo install --path .
 ```
 
 ## Usage
 
 ```sh
-# Bootstrap a managed file with content for the rio block
-rio init ~/.zshrc --from ./my-zsh-config.sh
+# Bootstrap a managed file with content for the rhio block
+rhio init ~/.zshrc --from ./my-zsh-config.sh
 
 # Report drift between the file's block and the sidecar's recorded hash
-rio status ~/.zshrc
+rhio status ~/.zshrc
 
 # Preview what apply would change
-rio diff ~/.zshrc --from ./my-zsh-config.sh
+rhio diff ~/.zshrc --from ./my-zsh-config.sh
 
 # Reconcile: overwrite the block, update the sidecar hash
-rio apply ~/.zshrc --from ./my-zsh-config.sh
+rhio apply ~/.zshrc --from ./my-zsh-config.sh
 ```
 
 All commands accept `--content <STRING>` for inline content or `--from <FILE>` to read content from a file.
 
 ## How it works
 
-A `rio`-managed file looks like this:
+A `rhio`-managed file looks like this:
 
 ```sh
-# Your personal stuff above the block — rio never touches this.
+# Your personal stuff above the block — rhio never touches this.
 export EDITOR=nvim
 alias gst='git status'
 
 # >>> RhuffusIO Managed Block >>>
-# Owned by rio. Edits inside are subject to reconciliation.
+# Owned by rhio. Edits inside are subject to reconciliation.
 export PATH="$HOME/.cargo/bin:$PATH"
 alias k=kubectl
 # <<< RhuffusIO Managed Block <<<
@@ -65,7 +65,7 @@ alias k=kubectl
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 ```
 
-The sidecar at `~/.zshrc.rio` records the hash of the managed block plus any "ignored" decisions:
+The sidecar at `~/.zshrc.rhio` records the hash of the managed block plus any "ignored" decisions:
 
 ```toml
 version = 1

@@ -1,11 +1,11 @@
 [package]
-name = "rio"
+name = "rhio"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 description = "Block-based reconciliation dotfile manager with tree-sitter parsing and per-file sidecar state."
-repository = "https://github.com/rhuffus/rio"
-homepage = "https://github.com/rhuffus/rio"
+repository = "https://github.com/rhuffus/rhio"
+homepage = "https://github.com/rhuffus/rhio"
 license = "Apache-2.0"
 readme = "README.md"
 keywords = ["dotfiles", "config", "homebrew", "tree-sitter"]
