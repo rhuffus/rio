@@ -4,46 +4,82 @@
 
 `rio` keeps your dotfiles synchronized across machines without overwriting them. It manages a delimited block inside each config file you bring under its control, leaving the rest of the file to you.
 
-Unlike traditional dotfile managers, `rio`:
+## What makes it different
 
-- **Co-resides with your edits**: only the marked block is owned by `rio`. Everything else stays yours.
-- **Reconciles drift**: detects manual edits outside the block and offers to promote, ignore, or remove them.
-- **Understands structure**: uses tree-sitter parsers to compare configurations semantically, not just textually.
-- **Tracks decisions**: a `.rio` sidecar next to each managed file persists what you have chosen to ignore.
+Unlike traditional dotfile managers (chezmoi, yadm, GNU Stow), `rio`:
+
+- **Co-resides with your edits.** Only the marked block is owned by `rio`. Everything else in the file stays yours.
+- **Understands structure.** Uses tree-sitter to compare configurations semantically (`FOO=bar` and `export FOO=bar` are the same thing).
+- **Reconciles drift interactively** *(v0.6).* Detects manual edits outside the block and offers to promote, ignore, or remove them.
+- **Tracks decisions** in a `.rio` sidecar next to each managed file — versioned in git, portable across machines.
 
 ## Status
 
-`v0.1.0` — under active development. Not yet published.
-
-### Roadmap
-
-| Version | Scope |
-|---------|-------|
-| v0.1 (MVP) | Shell files (`.zshrc`, `.bashrc`), block markers, tree-sitter-bash, `.rio` sidecar, Homebrew tap |
-| v0.2 | `.gitconfig`, `.ssh/config` (INI / ssh-config parsers) |
-| v0.3 | Structured files (`.kube/config`, `.docker/config.json`, `.warp/settings.toml`) via AST merge |
-| v0.4 | Per-host layering (`hostname -s` autodetected) |
-| v0.5 | 1Password Environments integration (`op://` references, `op inject` for CI/CD) |
-| v0.6 | Full interactive promote / ignore / delete with batched auto commit + tag |
-| v1.0 | Polish & docs |
+**v0.1.0 — alpha.** The MVP ships managed-block handling for shell files (`.zshrc`, `.bashrc`) with tree-sitter-bash parsing and the `.rio` sidecar format. See [docs/ROADMAP.md](docs/ROADMAP.md) for what each upcoming version adds.
 
 ## Install
 
-Not yet published. Once v0.1.0 ships:
-
 ```sh
+# Via Homebrew tap (recommended, once v0.1.0 ships)
 brew tap rhuffus/rio
 brew install rio
+
+# Or build from source
+git clone https://github.com/rhuffus/rio && cd rio && cargo install --path .
 ```
 
 ## Usage
 
 ```sh
-rio init ~/.zshrc      # bootstrap a managed file
-rio status             # show drift across all managed files
-rio diff               # preview what apply would change
-rio apply              # reconcile: write blocks, update sidecars
+# Bootstrap a managed file with content for the rio block
+rio init ~/.zshrc --from ./my-zsh-config.sh
+
+# Report drift between the file's block and the sidecar's recorded hash
+rio status ~/.zshrc
+
+# Preview what apply would change
+rio diff ~/.zshrc --from ./my-zsh-config.sh
+
+# Reconcile: overwrite the block, update the sidecar hash
+rio apply ~/.zshrc --from ./my-zsh-config.sh
 ```
+
+All commands accept `--content <STRING>` for inline content or `--from <FILE>` to read content from a file.
+
+## How it works
+
+A `rio`-managed file looks like this:
+
+```sh
+# Your personal stuff above the block — rio never touches this.
+export EDITOR=nvim
+alias gst='git status'
+
+# >>> RhuffusIO Managed Block >>>
+# Owned by rio. Edits inside are subject to reconciliation.
+export PATH="$HOME/.cargo/bin:$PATH"
+alias k=kubectl
+# <<< RhuffusIO Managed Block <<<
+
+# Your personal stuff below the block — also untouched.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+```
+
+The sidecar at `~/.zshrc.rio` records the hash of the managed block plus any "ignored" decisions:
+
+```toml
+version = 1
+managed_block_hash = "a1b2c3..."
+ignored = []
+```
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design rationale, the build-vs-adopt analysis against `chezmoi` and `yadm`, and the locked decisions.
+
+## Documentation
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — design model, locked decisions, comparison to existing dotfile managers
+- [docs/ROADMAP.md](docs/ROADMAP.md) — detailed roadmap from v0.1 through v1.0
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — building, testing, branch model, release process
 
 ## License
 
