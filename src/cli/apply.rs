@@ -39,6 +39,6 @@ pub fn run(args: Args) -> Result<()> {
     sc.managed_block_hash = Some(sidecar::hash_block(&content));
     sc.save(&sidecar_path)?;
 
-    println!("rio: applied {} (block hash updated)", args.path.display());
+    println!("rhio: applied {} (block hash updated)", args.path.display());
     Ok(())
 }

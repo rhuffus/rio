@@ -5,8 +5,8 @@ use std::path::PathBuf;
 
 use crate::{block, sidecar};
 
-/// Bootstrap a managed file with the rio managed block. Fails if the sidecar
-/// already exists — use `rio apply` to reconcile an already-managed file.
+/// Bootstrap a managed file with the rhio managed block. Fails if the sidecar
+/// already exists — use `rhio apply` to reconcile an already-managed file.
 #[derive(ClapArgs, Debug)]
 pub struct Args {
     /// Path to the file to bring under management.
@@ -25,7 +25,7 @@ pub fn run(args: Args) -> Result<()> {
     let sidecar_path = sidecar::path_for(&args.path);
     if sidecar_path.exists() {
         bail!(
-            "sidecar already exists at {}; use `rio apply` to reconcile",
+            "sidecar already exists at {}; use `rhio apply` to reconcile",
             sidecar_path.display()
         );
     }
@@ -48,7 +48,7 @@ pub fn run(args: Args) -> Result<()> {
     sc.save(&sidecar_path)?;
 
     println!(
-        "rio: initialized {} ({} bytes managed)",
+        "rhio: initialized {} ({} bytes managed)",
         args.path.display(),
         content.len()
     );

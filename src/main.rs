@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use rio::cli::Cli;
+use rhio::cli::Cli;
 
 fn main() -> Result<()> {
     Cli::parse().run()

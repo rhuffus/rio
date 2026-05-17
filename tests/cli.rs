@@ -7,7 +7,7 @@ use tempfile::tempdir;
 
 #[test]
 fn shows_help() {
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .arg("--help")
         .assert()
@@ -17,7 +17,7 @@ fn shows_help() {
 
 #[test]
 fn shows_version() {
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .arg("--version")
         .assert()
@@ -30,7 +30,7 @@ fn init_creates_block_and_sidecar() {
     let dir = tempdir().unwrap();
     let target = dir.path().join("test.sh");
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args([
             "init",
@@ -46,7 +46,7 @@ fn init_creates_block_and_sidecar() {
     assert!(body.contains("# >>> RhuffusIO Managed Block >>>"));
     assert!(body.contains("export FOO=bar"));
 
-    let sidecar = PathBuf::from(format!("{}.rio", target.display()));
+    let sidecar = PathBuf::from(format!("{}.rhio", target.display()));
     assert!(
         sidecar.exists(),
         "sidecar should exist at {}",
@@ -59,13 +59,13 @@ fn init_refuses_when_sidecar_already_exists() {
     let dir = tempdir().unwrap();
     let target = dir.path().join("test.sh");
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["init", target.to_str().unwrap(), "--content", "first"])
         .assert()
         .success();
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["init", target.to_str().unwrap(), "--content", "second"])
         .assert()
@@ -78,7 +78,7 @@ fn apply_is_idempotent_and_status_reports_clean() {
     let dir = tempdir().unwrap();
     let target = dir.path().join("test.sh");
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args([
             "apply",
@@ -90,7 +90,7 @@ fn apply_is_idempotent_and_status_reports_clean() {
         .success();
 
     // Second apply with same content: same hash, still clean.
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args([
             "apply",
@@ -101,7 +101,7 @@ fn apply_is_idempotent_and_status_reports_clean() {
         .assert()
         .success();
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["status", target.to_str().unwrap()])
         .assert()
@@ -114,7 +114,7 @@ fn status_reports_drift_after_manual_edit() {
     let dir = tempdir().unwrap();
     let target = dir.path().join("test.sh");
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["init", target.to_str().unwrap(), "--content", "FOO=bar"])
         .assert()
@@ -125,7 +125,7 @@ fn status_reports_drift_after_manual_edit() {
     let tampered = body.replace("FOO=bar", "FOO=tampered");
     fs::write(&target, tampered).unwrap();
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["status", target.to_str().unwrap()])
         .assert()
@@ -138,13 +138,13 @@ fn diff_reports_no_changes_when_content_matches() {
     let dir = tempdir().unwrap();
     let target = dir.path().join("test.sh");
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["init", target.to_str().unwrap(), "--content", "X=1"])
         .assert()
         .success();
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["diff", target.to_str().unwrap(), "--content", "X=1"])
         .assert()
@@ -159,7 +159,7 @@ fn init_with_from_flag_reads_content_file() {
     let target = dir.path().join("target.sh");
     fs::write(&source, "alias k=kubectl\nalias d=docker\n").unwrap();
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args([
             "init",
@@ -180,7 +180,7 @@ fn apply_after_drift_restores_clean_status() {
     let dir = tempdir().unwrap();
     let target = dir.path().join("test.sh");
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["init", target.to_str().unwrap(), "--content", "FOO=bar"])
         .assert()
@@ -191,13 +191,13 @@ fn apply_after_drift_restores_clean_status() {
     fs::write(&target, body.replace("FOO=bar", "FOO=tampered")).unwrap();
 
     // Apply with the original content restores the block and rebases the hash.
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["apply", target.to_str().unwrap(), "--content", "FOO=bar"])
         .assert()
         .success();
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["status", target.to_str().unwrap()])
         .assert()
@@ -211,7 +211,7 @@ fn status_reports_unmanaged_file() {
     let target = dir.path().join("plain.sh");
     fs::write(&target, "echo hello\n").unwrap();
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["status", target.to_str().unwrap()])
         .assert()
@@ -224,13 +224,13 @@ fn diff_shows_both_sides_when_content_differs() {
     let dir = tempdir().unwrap();
     let target = dir.path().join("test.sh");
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["init", target.to_str().unwrap(), "--content", "OLD=1"])
         .assert()
         .success();
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["diff", target.to_str().unwrap(), "--content", "NEW=2"])
         .assert()
@@ -244,7 +244,7 @@ fn init_creates_file_when_missing() {
     let target = dir.path().join("brand-new.sh");
     assert!(!target.exists());
 
-    Command::cargo_bin("rio")
+    Command::cargo_bin("rhio")
         .unwrap()
         .args(["init", target.to_str().unwrap(), "--content", "echo hi"])
         .assert()
